@@ -39,6 +39,21 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = jwtSettings["Audience"],
         ValidateLifetime = true
     };
+
+    // 🔥 Đọc Token từ Cookie nếu không có trong Header
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            if (context.Request.Cookies.ContainsKey("jwt"))
+            {
+                context.Token = context.Request.Cookies["jwt"];
+            }
+             Console.WriteLine($"🚨 Authentication failed: ");
+    
+            return Task.CompletedTask;
+        },
+    };
 });
 
 // Cấu hình quyền hạn & phân quyền

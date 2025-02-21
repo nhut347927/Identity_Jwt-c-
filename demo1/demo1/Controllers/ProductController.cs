@@ -1,10 +1,12 @@
 using demo1.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 
 namespace demo1.Controllers
 {
+    [Authorize]
     public class ProductController : Controller
     {
         private readonly ApplicationDbContext _context;

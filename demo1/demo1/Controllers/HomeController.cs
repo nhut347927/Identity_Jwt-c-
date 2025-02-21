@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using demo1.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace demo1.Controllers
 {
@@ -13,16 +14,20 @@ namespace demo1.Controllers
             _logger = logger;
         }
 
+        [Authorize]
+         [AllowAnonymous]
         public IActionResult Index()
         {
             return View();
         }
 
+        [AllowAnonymous]
         public IActionResult Privacy()
         {
             return View();
         }
 
+        [AllowAnonymous]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

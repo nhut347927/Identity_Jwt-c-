@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace demo1.Controllers
 {
+    [Authorize]
     public class PermissionController : Controller
     {
         private readonly RoleManager<IdentityRole> _roleManager;
