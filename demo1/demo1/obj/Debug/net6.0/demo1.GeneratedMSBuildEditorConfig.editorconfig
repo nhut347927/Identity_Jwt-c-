@@ -36,16 +36,16 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/0_PROJECT MANAGER/ALTA/WEEK5/Identity_Jwt-c-/demo1/demo1/Views/Permission/AddPermission.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGVybWlzc2lvblxBZGRQZXJtaXNzaW9uLmNzaHRtbA==
-build_metadata.AdditionalFiles.CssScope = 
-
 [D:/0_PROJECT MANAGER/ALTA/WEEK5/Identity_Jwt-c-/demo1/demo1/Views/Permission/AddRole.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGVybWlzc2lvblxBZGRSb2xlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/0_PROJECT MANAGER/ALTA/WEEK5/Identity_Jwt-c-/demo1/demo1/Views/Permission/AssignPermissionsToRoles.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGVybWlzc2lvblxBc3NpZ25QZXJtaXNzaW9uc1RvUm9sZXMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/0_PROJECT MANAGER/ALTA/WEEK5/Identity_Jwt-c-/demo1/demo1/Views/Permission/ListUsers.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGVybWlzc2lvblxMaXN0VXNlcnMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/0_PROJECT MANAGER/ALTA/WEEK5/Identity_Jwt-c-/demo1/demo1/Views/Product/Create.cshtml]

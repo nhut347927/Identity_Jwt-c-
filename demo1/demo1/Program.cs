@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -37,10 +38,11 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidIssuer = jwtSettings["Issuer"],
         ValidAudience = jwtSettings["Audience"],
-        ValidateLifetime = true
+        ValidateLifetime = true,
+        NameClaimType = "name"
     };
 
-    // 🔥 Đọc Token từ Cookie nếu không có trong Header
+    // Đọc Token từ Cookie nếu không có trong Header
     options.Events = new JwtBearerEvents
     {
         OnMessageReceived = context =>
@@ -49,18 +51,22 @@ builder.Services.AddAuthentication(options =>
             {
                 context.Token = context.Request.Cookies["jwt"];
             }
-             Console.WriteLine($"🚨 Authentication failed: ");
-    
             return Task.CompletedTask;
         },
     };
 });
 
-// Cấu hình quyền hạn & phân quyền
+// Đăng ký chính sách tùy chỉnh
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("Product-View", policy => policy.Requirements.Add(new PermissionRequirement("Product-View")));
+    options.AddPolicy("Product-Insert", policy => policy.Requirements.Add(new PermissionRequirement("Product-Insert")));
+    options.AddPolicy("Product-Update", policy => policy.Requirements.Add(new PermissionRequirement("Product-Update")));
+    options.AddPolicy("Product-Delete", policy => policy.Requirements.Add(new PermissionRequirement("Product-Delete")));
 });
+
+// Đăng ký handler cho chính sách tùy chỉnh
+builder.Services.AddScoped<IAuthorizationHandler, PermissionHandler>();
 
 // Thêm MVC
 builder.Services.AddControllersWithViews();

@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 namespace demo1.Controllers
 {
-    [Authorize]
     public class ProductController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -17,6 +16,7 @@ namespace demo1.Controllers
         }
 
         // GET: Product
+        [Authorize(Policy = "Product-View")]
         public async Task<IActionResult> Index()
         {
             if (_context.Products == null)
@@ -27,6 +27,7 @@ namespace demo1.Controllers
         }
 
         // GET: Product/Create
+        [Authorize(Policy = "Product-Insert")]
         public IActionResult Create()
         {
             return View();
@@ -35,6 +36,7 @@ namespace demo1.Controllers
         // POST: Product/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "Product-Insert")]
         public async Task<IActionResult> Create([Bind("Id,Name,Price")] Product product)
         {
             if (ModelState.IsValid)
@@ -47,6 +49,7 @@ namespace demo1.Controllers
         }
 
         // GET: Product/Edit/5
+        [Authorize(Policy = "Product-Update")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -71,6 +74,7 @@ namespace demo1.Controllers
         // POST: Product/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "Product-Update")]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Price")] Product product)
         {
             if (id != product.Id)
@@ -102,6 +106,7 @@ namespace demo1.Controllers
         }
 
         // GET: Product/Delete/5
+        [Authorize(Policy = "Product-Delete")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -127,6 +132,7 @@ namespace demo1.Controllers
         // POST: Product/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "Product-Delete")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
 

@@ -1,0 +1,25 @@
+@{
+    ViewData["Title"] = "List Users";
+}
+
+<h1>List Users</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>User Name</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in ViewBag.Users)
+        {
+            <tr>
+                <td>@user.UserName</td>
+                <td>
+                    <a href="@Url.Action("AssignPermissionsToRoles", "Permission", new { userName = user.UserName })" class="btn btn-primary">Assign Permissions</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

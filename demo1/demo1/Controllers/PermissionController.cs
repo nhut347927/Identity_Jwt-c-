@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
+using demo1.ViewModels;
 
 namespace demo1.Controllers
 {
@@ -21,102 +23,84 @@ namespace demo1.Controllers
             _context = context;
         }
 
-        // GET: Permission/AddPermission
-        public IActionResult AddPermission()
+        // GET: Permission/ListUsers
+        public async Task<IActionResult> ListUsers()
         {
-            return View();
-        }
-
-        // POST: Permission/AddPermission
-        [HttpPost]
-        public async Task<IActionResult> AddPermission(string permissionName)
-        {
-            if (!string.IsNullOrEmpty(permissionName))
-            {
-                var permission = new Permission { Name = permissionName };
-                if (_context.Permissions != null)
-                {
-                    _context.Permissions.Add(permission);
-                }
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(AddPermission));
-            }
-            return View();
-        }
-
-        // GET: Role/AddRole
-        public IActionResult AddRole()
-        {
-            return View();
-        }
-
-        // POST: Role/AddRole
-        [HttpPost]
-        public async Task<IActionResult> AddRole(string roleName)
-        {
-            if (!string.IsNullOrEmpty(roleName))
-            {
-                var role = new IdentityRole { Name = roleName };
-                await _roleManager.CreateAsync(role);
-                return RedirectToAction(nameof(AddRole));
-            }
+            var users = await _userManager.Users.ToListAsync();
+            ViewBag.Users = users;
             return View();
         }
 
         // GET: Permission/AssignPermissionsToRoles
-        public IActionResult AssignPermissionsToRoles()
+        public async Task<IActionResult> AssignPermissionsToRoles(string userName)
         {
-            var roles = _roleManager.Roles.ToList();
-            
-            var permissions = _context.Permissions?.ToList() ?? new List<Permission>();
-            ViewBag.Roles = roles;
-            ViewBag.Permissions = permissions;
-            return View();
-        }
-
-        // POST: Permission/AssignPermissionsToRoles
-        [HttpPost]
-        public async Task<IActionResult> AssignPermissionsToRoles(string userName, List<string> rolePermissions)
-        {
-            if (!string.IsNullOrEmpty(userName) && rolePermissions != null)
+            var user = await _userManager.FindByNameAsync(userName);
+            if (user != null)
             {
-                var user = await _userManager.FindByNameAsync(userName);
-                if (user != null)
+                var roles = await _roleManager.Roles.ToListAsync();
+                var userRolePermissions = await _context.RolePermissions
+                    .Where(rp => rp.UserId == user.Id)
+                    .ToListAsync();
+
+                var model = new UpdateUserPermissionsViewModel
                 {
-                    foreach (var rolePermission in rolePermissions)
-                    {
-                        var parts = rolePermission.Split('-');
-                        var roleName = parts[0];
-                        var permissionName = parts[1];
+                    UserName = userName,
+                    Permissions = roles.ToDictionary(
+                        role => role.Id,
+                        role => userRolePermissions.FirstOrDefault(rp => rp.RoleId == role.Id) ?? new RolePermission()
+                    )
+                };
 
-                        var role = await _roleManager.FindByNameAsync(roleName);
-                        if (role != null)
-                        {
-                            if (!await _userManager.IsInRoleAsync(user, roleName))
-                            {
-                                await _userManager.AddToRoleAsync(user, roleName);
-                            }
-
-                            var permission = _context.Permissions?.FirstOrDefault(p => p.Name == permissionName);
-                            if (permission != null)
-                            {
-                                var rolePermissionEntity = new RolePermission
-                                {
-                                    RoleId = role.Id,
-                                    PermissionId = permission.Id
-                                };
-                                if (_context.RolePermissions != null)
-                                {
-                                    _context.RolePermissions.Add(rolePermissionEntity);
-                                }
-                            }
-                        }
-                    }
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(AssignPermissionsToRoles));
-                }
+                ViewBag.Roles = roles;
+                return View(model);
             }
-            return View();
+            return RedirectToAction(nameof(ListUsers));
         }
+
+        // POST: Permission/UpdateUserPermissions
+       [HttpPost]
+public async Task<IActionResult> UpdateUserPermissions(UpdateUserPermissionsViewModel model)
+{
+    var user = await _userManager.FindByNameAsync(model.UserName);
+    if (user == null)
+    {
+        return RedirectToAction(nameof(ListUsers));
+    }
+
+    foreach (var permissionEntry in model.Permissions)
+    {
+        var roleId = permissionEntry.Key;
+        var newPermissions = permissionEntry.Value;
+
+        var rolePermission = await _context.RolePermissions
+            .FirstOrDefaultAsync(rp => rp.UserId == user.Id && rp.RoleId == roleId);
+
+        if (rolePermission == null)
+        {
+            rolePermission = new RolePermission
+            {
+                UserId = user.Id,
+                RoleId = roleId,
+                CanView = newPermissions.CanView,
+                CanInsert = newPermissions.CanInsert,
+                CanUpdate = newPermissions.CanUpdate,
+                CanDelete = newPermissions.CanDelete
+            };
+            _context.RolePermissions.Add(rolePermission);
+        }
+        else
+        {
+            rolePermission.CanView = newPermissions.CanView;
+            rolePermission.CanInsert = newPermissions.CanInsert;
+            rolePermission.CanUpdate = newPermissions.CanUpdate;
+            rolePermission.CanDelete = newPermissions.CanDelete;
+            _context.RolePermissions.Update(rolePermission);
+        }
+    }
+
+    await _context.SaveChangesAsync();
+    return RedirectToAction(nameof(ListUsers));
+}
+
     }
 }
